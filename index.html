@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heath Care Hospital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-image: url('https://firebasestorage.googleapis.com/v0/b/widecanvas-d0dd4.appspot.com/o/additional-images%2FH2?alt=media&token=6c3f789b-ec18-4824-a240-d31929475298');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+    .glass {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+    }
+    .loader {
+        border: 3px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 3px solid #3498db;
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    @media (max-width: 640px) {
+        .glass {
+            width: 95%;
+            margin: 0 auto;
+        }
+    }
+    .dashboard-tab.active {
+        background-color: #3b82f6;
+        color: white;
+    }
+    .dashboard-tab {
+        transition: all 0.3s ease;
+    }
+</style>
+<body class="min-h-screen">
+    <div class="container mx-auto p-4">
+        <!-- Main Container -->
+        <div class="max-w-md mx-auto glass rounded-lg p-6 shadow-lg" id="mainContent">
+            <div class="flex justify-center mb-6">
+                <img src="https://firebasestorage.googleapis.com/v0/b/widecanvas-d0dd4.appspot.com/o/additional-images%2FH2?alt=media&token=6c3f789b-ec18-4824-a240-d31929475298" alt="Hospital Logo" class="h-16 rounded-full object-cover shadow-md">
+            </div>
+            <h1 class="text-3xl font-bold text-center text-blue-800 mb-6">Heath Care Hospital</h1>
+            
+            <!-- User Type Selection -->
+            <div id="userTypeSelection" class="space-y-4">
+                <h2 class="text-xl font-semibold text-center mb-4">Select User Type</h2>
+                <div class="flex justify-center gap-4">
+                    <button onclick="showLogin('patient')" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-md flex items-center justify-center gap-2">
+                        <i class="bi bi-person-fill"></i> Patient
+                    </button>
+                    <button onclick="showLogin('doctor')" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition shadow-md flex items-center justify-center gap-2">
+                        <i class="bi bi-clipboard2-pulse-fill"></i> Doctor
+                    </button>
+                </div>
+            </div>
+
+            <!-- Patient Login -->
+            <div id="patientLogin" class="hidden space-y-4">
+                <div class="flex items-center mb-4">
+                    <button onclick="backToUserSelection()" class="text-blue-600 mr-2">
+                        <i class="bi bi-arrow-left"></i>
+                    </button>
+                    <h2 class="text-xl font-semibold text-center flex-1">Patient Login</h2>
+                </div>
+                <form onsubmit="handlePatientLogin(event)" class="space-y-4">
+                    <div class="relative">
+                        <i class="bi bi-person-fill absolute left-3 top-3 text-gray-400"></i>
+                        <input type="text" id="patientUsername" placeholder="Username (min 8 characters)" class="w-full p-2 pl-10 border rounded-lg shadow-sm" required pattern=".{8,}" title="Username must be at least 8 characters">
+                    </div>
+                    <div class="relative">
+                        <i class="bi bi-lock-fill absolute left-3 top-3 text-gray-400"></i>
+                        <input type="password" id="patientPassword" placeholder="Password (5 digit phone number)" class="w-full p-2 pl-10 border rounded-lg shadow-sm" required pattern="[0-9]{5}" title="Password must be a 5 digit phone number">
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-md transition">
+                        Login <i class="bi bi-box-arrow-in-right ml-1"></i>
+                    </button>
+                </form>
+                <div class="flex justify-between mt-4">
+                    <button onclick="showForgotPassword()" class="text-blue-600 hover:underline flex items-center">
+                        <i class="bi bi-question-circle-fill mr-1"></i> Forgot Password?
+                    </button>
+                    <button onclick="showSignup()" class="text-blue-600 hover:underline flex items-center">
+                        <i class="bi bi-person-plus-fill mr-1"></i> Sign Up
+                    </button>
+                </div>
+            </div>
+
+            <!-- Doctor Login -->
+            <div id="doctorLogin" class="hidden space-y-4">
+                <div class="flex items-center mb-4">
+                    <button onclick="backToUserSelection()" class="text-green-600 mr-2">
+                        <i class="bi bi-arrow-left"></i>
+                    </button>
+                    <h2 class="text-xl font-semibold text-center flex-1">Doctor Login</h2>
+                </div>
+                <form onsubmit="handleDoctorLogin(event)" class="space-y-4">
+                    <div class="relative">
+                        <i class="bi bi-person-fill absolute left-3 top-3 text-gray-400"></i>
+                        <input type="text" placeholder="Username (min 8 characters)" class="w-full p-2 pl-10 border rounded-lg shadow-sm" required pattern=".{8,}" title="Username must be at least 8 characters">
+                    </div>
+                    <div class="relative">
+                        <i class="bi bi-lock-fill absolute left-3 top-3 text-gray-400"></i>
+                        <input type="password" placeholder="Password (5 digit phone number)" class="w-full p-2 pl-10 border rounded-lg shadow-sm" required pattern="[0-9]{5}" title="Password must be a 5 digit phone number">
+                    </div>
+                    <div class="relative">
+                        <i class="bi bi-hospital-fill absolute left-3 top-3 text-gray-400"></i>
+                        <select class="w-full p-2 pl-10 border rounded-lg shadow-sm">
+                            <option value="">Select Doctor</option>
+                            <option value="dr1">Dr. Sarah Johnson</option>
+                            <option value="dr2">Dr. Michael Chen</option>
+                            <option value="dr3">Dr. Emily Wilson</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-md transition">
+                        Login <i class="bi bi-box-arrow-in-right ml-1"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Patient Dashboard -->
+            <div id="patientDashboard" class="hidden">
+                <!-- Dashboard Tabs -->
+                <div class="flex mb-4 border-b overflow-x-auto whitespace-nowrap">
+                    <button onclick="showPatientTab('medical-info')" id="medical-info-tab" class="dashboard-tab flex-1 py-2 px-4 active border-b-2 border-blue-500">
+                        <i class="bi bi-clipboard2-pulse mr-1"></i> Medical
+                    </button>
+                    <button onclick="showPatientTab('appointment')" id="appointment-tab" class="dashboard-tab flex-1 py-2 px-4 text-gray-600">
+                        <i class="bi bi-calendar-check mr-1"></i> Appointment
+                    </button>
+                    <button onclick="showPatientTab('password')" id="password-tab" class="dashboard-tab flex-1 py-2 px-4 text-gray-600">
+                        <i class="bi bi-key-fill mr-1"></i> Password
+                    </button>
+                    <button onclick="logout()" class="dashboard-tab flex-1 py-2 px-4 text-red-600">
+                        <i class="bi bi-box-arrow-right mr-1"></i> Logout
+                    </button>
+                </div>
+
+                <!-- Medical Information Tab -->
+                <div id="medical-info-content" class="dashboard-content">
+                    <div class="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                        <h3 class="text-lg font-semibold mb-3 text-blue-800 flex items-center">
+                            <i class="bi bi-clipboard2-pulse mr-2"></i> Medical Information
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Referred by</label>
+                                    <input type="text" class="w-full p-2 border rounded-lg shadow-sm" readonly value="Dr. Smith">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Previous Diseases</label>
+                                    <input type="text" class="w-full p-2 border rounded-lg shadow-sm" readonly value="Hypertension">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Gender</label>
+                                    <select class="w-full p-2 border rounded-lg shadow-sm">
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Age</label>
+                                    <input type="number" class="w-full p-2 border rounded-lg shadow-sm" value="42">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Previous Treatment</label>
+                                <textarea class="w-full p-2 border rounded-lg shadow-sm" readonly>Beta blockers and lifestyle changes</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Last Operation</label>
+                                <input type="text" class="w-full p-2 border rounded-lg shadow-sm" readonly value="None">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">Blood Report</label>
+                                <div class="flex items-center">
+                                    <input type="file" class="w-full p-2 border rounded-lg shadow-sm" accept=".pdf,.doc,.docx">
+                                    <button class="ml-2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                        <i class="bi bi-upload"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">Latest Medical Prescription</label>
+                                <div class="flex items-center">
+                                    <input type="file" class="w-full p-2 border rounded-lg shadow-sm" accept=".pdf,.doc,.docx">
+                                    <button class="ml-2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                        <i class="bi bi-upload"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Current Health Issue</label>
+                                <textarea class="w-full p-2 border rounded-lg shadow-sm"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Doctor Appointment Tab -->
+                <div id="appointment-content" class="dashboard-content hidden">
+                    <div class="bg-green-50 p-3 rounded-lg border border-green-200">
+                        <h3 class="text-lg font-semibold mb-3 text-green-800 flex items-center">
+                            <i class="bi bi-calendar-check mr-2"></i> Book Appointment
+                        </h3>
+                        <form class="space-y-4">
+                            <div class="relative">
+                                <i class="bi bi-person-badge absolute left-3 top-3 text-gray-400"></i>
+                                <select class="w-full p-2 pl-10 border rounded-lg shadow-sm">
+                                    <option value="">Select Doctor</option>
+                                    <option value="dr1">Dr. Sarah Johnson - Cardiologist</option>
+                                    <option value="dr2">Dr. Michael Chen - Neurologist</option>
+                                    <option value="dr3">Dr. Emily Wilson - Pediatrician</option>
+                                </select>
+                            </div>
+                            <div class="relative">
+                                <i class="bi bi-calendar-date absolute left-3 top-3 text-gray-400"></i>
+                                <input type="date" class="w-full p-2 pl-10 border rounded-lg shadow-sm">
+                            </div>
+                            <div class="relative">
+                                <i class="bi bi-clock absolute left-3 top-3 text-gray-400"></i>
+                                <input type="time" class="w-full p-2 pl-10 border rounded-lg shadow-sm">
+                            </div>
+                            <button type="submit" class="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-md transition">
+                                <i class="bi bi-calendar-plus mr-1"></i> Book Appointment
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="mt-4 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                        <h3 class="text-lg font-semibold mb-3 text-blue-800 flex items-center">
+                            <i class="bi bi-calendar-week mr-2"></i> My Appointments
+                        </h3>
+                        <div class="space-y-2">
+                            <div class="p-3 bg-white rounded-lg shadow-sm">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <span class="font-medium">Dr. Sarah Johnson</span>
+                                        <p class="text-sm text-gray-600">Cardiologist</p>
+                                        <p class="text-xs text-gray-500">May 15, 2023 - 10:30 AM</p>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button class="p-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </button>
+                                        <button class="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-white rounded-lg shadow-sm">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <span class="font-medium">Dr. Michael Chen</span>
+                                        <p class="text-sm text-gray-600">Neurologist</p>
+                                        <p class="text-xs text-gray-500">May 20, 2023 - 2:00 PM</p>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button class="p-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </button>
+                                        <button class="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Change Password Tab -->
+                <div id="password-content" class="dashboard-content hidden">
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        <h3 class="text-lg font-semibold mb-3 text-gray-800 flex items-center">
+                            <i class="bi bi-key-fill mr-2"></i> Change Password
+                        </h3>
+                        <form onsubmit="handleChangePassword(event)" class="space-y-4">
+                            <div class="relative">
+                                <i class="bi bi-lock-fill absolute left-3 top-3 text-gray-400"></i>
+                                <input type="password" placeholder="Old Password" class="w-full p-2 pl-10 border rounded-lg shadow-sm" required pattern="[0-9]{5}" title="Password must be a 5 digit phone number">
+                            </div>
+                            <div class="relative">
+                                <i class="bi bi-check-circle-fill absolute left-3 top-3 text-gray-400"></i>
+                                <input type="password" placeholder="Confirm Old Password" class="w-full p-2 pl-10 border rounded-lg shadow-sm" required pattern="[0-9]{5}" title="Password must be a 5 digit phone number">
+                            </div>
+                            <div class="relative">
+                                <i class="bi bi-lock-fill absolute left-3 top-3 text-gray-400"></i>
+                                <input type="password" placeholder="New Password" class="w-full p-2 pl-10 border rounded-lg shadow-sm" required pattern="[0-9]{5}" title="Password must be a 5 digit phone number">
+                            </div>
+                            <div class="relative">
+                                <i class="bi bi-check-circle-fill absolute left-3 top-3 text-gray-400"></i>
+                                <input type="password" placeholder="Confirm New Password" class="w-full p-2 pl-10 border rounded-lg shadow-sm" required pattern="[0-9]{5}" title="Password must be a 5 digit phone number">
+                            </div>
+                            <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-md transition">
+                                <i class="bi bi-key-fill mr-1"></i> Change Password
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Panel / Doctor Dashboard -->
+            <div id="adminPanel" class="hidden">
+                <div class="flex mb-4 border-b overflow-x-auto whitespace-nowrap">
+                    <button onclick="showDoctorTab('today')" id="today-tab" class="dashboard-tab flex-1 py-2 px-4 active border-b-2 border-green-500">
+                        <i class="bi bi-calendar-day mr-1"></i> Today
+                    </button>
+                    <button onclick="showDoctorTab('previous')" id="previous-tab" class="dashboard-tab flex-1 py-2 px-4 text-gray-600">
+                        <i class="bi bi-calendar-x mr-1"></i> Previous
+                    </button>
+                    <button onclick="showDoctorTab('upcoming')" id="upcoming-tab" class="dashboard-tab flex-1 py-2 px-4 text-gray-600">
+                        <i class="bi bi-calendar-plus mr-1"></i> Tomorrow
+                    </button>
+                    <button onclick="logout()" class="dashboard-tab flex-1 py-2 px-4 text-red-600">
+                        <i class="bi bi-box-arrow-right mr-1"></i> Logout
+                    </button>
+                </div>
+
+                <!-- Today's Patient List -->
+                <div id="today-content" class="doctor-content">
+                    <h2 class="text-2xl font-semibold text-green-800 mb-4">Today's Patient List</h2>
+                    <div class="space-y-4" id="patientList">
+                        <!-- Patient list will be generated here -->
+                        <div class="flex justify-center">
+                            <div class="loader"></div>
+                            <span class="ml-2">Loading patient list...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Previous Patient List -->
+                <div id="previous-content" class="doctor-content hidden">
+                    <h2 class="text-2xl font-semibold text-green-800 mb-4">Previous Patient List</h2>
+                    <div class="space-y-4" id="previousPatientList">
+                        <div class="flex justify-center">
+                            <div class="loader"></div>
+                            <span class="ml-2">Loading previous patient list...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tomorrow's Patient List -->
+                <div id="upcoming-content" class="doctor-content hidden">
+                    <h2 class="text-2xl font-semibold text-green-800 mb-4">Tomorrow's Patient List</h2>
+                    <div class="space-y-4" id="upcomingPatientList">
+                        <div class="flex justify-center">
+                            <div class="loader"></div>
+                            <span class="ml-2">Loading tomorrow's patient list...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+const patients = [
+    {id: 1, name: "John Doe", status: "Waiting"},
+    {id: 2, name: "Jane Smith", status: "In Progress"},
+    {id: 3, name: "Robert Johnson", status: "Completed"},
+    {id: 4, name: "Maria Garcia", status: "Waiting"},
+    {id: 5, name: "David Chen", status: "Waiting"},
+    {id: 6, name: "Sarah Wilson", status: "In Progress"},
+    {id: 7, name: "Michael Brown", status: "Waiting"},
+    {id: 8, name: "Emma Davis", status: "Completed"},
+    {id: 9, name: "James Taylor", status: "In Progress"},
+    {id: 10, name: "Lisa Anderson", status: "Waiting"}
+];
+
+const previousPatients = [
+    {id: 11, name: "Thomas Wright", status: "Completed"},
+    {id: 12, name: "Olivia Harris", status: "Completed"},
+    {id: 13, name: "William Clark", status: "Completed"},
+    {id: 14, name: "Sophia Lee", status: "Completed"},
+    {id: 15, name: "Ethan Martin", status: "No Show"},
+    {id: 16, name: "Ava Thompson", status: "Completed"},
+    {id: 17, name: "Alexander White", status: "Completed"},
+    {id: 18, name: "Isabella Scott", status: "Completed"},
+    {id: 19, name: "Daniel Green", status: "No Show"},
+    {id: 20, name: "Mia Baker", status: "Completed"}
+];
+
+const upcomingPatients = [
+    {id: 21, name: "Benjamin Adams", status: "Scheduled"},
+    {id: 22, name: "Charlotte Hill", status: "Scheduled"},
+    {id: 23, name: "Henry Turner", status: "Scheduled"},
+    {id: 24, name: "Amelia Evans", status: "Scheduled"},
+    {id: 25, name: "Sebastian Parker", status: "Scheduled"},
+    {id: 26, name: "Lily Collins", status: "Scheduled"},
+    {id: 27, name: "Samuel James", status: "Scheduled"},
+    {id: 28, name: "Grace Morris", status: "Scheduled"},
+    {id: 29, name: "Joseph Reed", status: "Scheduled"},
+    {id: 30, name: "Chloe Rogers", status: "Scheduled"}
+];
+
+function backToUserSelection() {
+    document.getElementById('patientLogin').classList.add('hidden');
+    document.getElementById('doctorLogin').classList.add('hidden');
+    document.getElementById('userTypeSelection').classList.remove('hidden');
+}
+
+function showLogin(type) {
+    document.getElementById('userTypeSelection').classList.add('hidden');
+    if(type === 'patient') {
+        document.getElementById('patientLogin').classList.remove('hidden');
+    } else {
+        document.getElementById('doctorLogin').classList.remove('hidden');
+    }
+}
+
+function validateUsername(username) {
+    return username && username.length >= 8;
+}
+
+function validatePassword(password) {
+    return password && /^\d{5}$/.test(password);
+}
+
+function handlePatientLogin(e) {
+    e.preventDefault();
+    const form = e.target;
+    const username = document.getElementById('patientUsername').value;
+    const password = document.getElementById('patientPassword').value;
+    const button = form.querySelector('button');
+    const originalText = button.innerHTML;
+    
+    if (!validateUsername(username)) {
+        alert("Username must be at least 8 characters long!");
+        return;
+    }
+    
+    if (!validatePassword(password)) {
+        alert("Password must be a 5-digit phone number!");
+        return;
+    }
+    
+    button.innerHTML = '<div class="loader mr-2"></div> Logging in...';
+    
+    // Simulate API call
+    setTimeout(() => {
+        document.getElementById('patientLogin').classList.add('hidden');
+        document.getElementById('patientDashboard').classList.remove('hidden');
+        button.innerHTML = originalText;
+    }, 1000);
+}
+
+function handleDoctorLogin(e) {
+    e.preventDefault();
+    const form = e.target;
+    const username = form.querySelector('input[type="text"]').value;
+    const password = form.querySelector('input[type="password"]').value;
+    const button = form.querySelector('button');
+    const originalText = button.innerHTML;
+    
+    if (!validateUsername(username)) {
+        alert("Username must be at least 8 characters long!");
+        return;
+    }
+    
+    if (!validatePassword(password)) {
+        alert("Password must be a 5-digit phone number!");
+        return;
+    }
+    
+    button.innerHTML = '<div class="loader mr-2"></div> Logging in...';
+    
+    // Simulate API call
+    setTimeout(() => {
+        document.getElementById('doctorLogin').classList.add('hidden');
+        document.getElementById('adminPanel').classList.remove('hidden');
+        button.innerHTML = originalText;
+        showDoctorTab('today');
+    }, 1000);
+}
+
+function showPatientTab(tabId) {
+    // Get all tabs and contents
+    const tabs = ['medical-info', 'appointment', 'password'];
+    
+    // Hide all content
+    tabs.forEach(tab => {
+        document.getElementById(`${tab}-content`).classList.add('hidden');
+        const tabButton = document.getElementById(`${tab}-tab`);
+        if (tabButton) {
+            tabButton.classList.remove('active', 'bg-blue-500', 'text-white');
+            tabButton.classList.add('text-gray-600');
+        }
+    });
+    
+    // Show selected content
+    document.getElementById(`${tabId}-content`).classList.remove('hidden');
+    const activeTab = document.getElementById(`${tabId}-tab`);
+    if (activeTab) {
+        activeTab.classList.add('active', 'bg-blue-500', 'text-white');
+        activeTab.classList.remove('text-gray-600');
+    }
+}
+
+function showDoctorTab(tabId) {
+    // Get all doctor tabs
+    const tabs = ['today', 'previous', 'upcoming'];
+    
+    // Hide all content
+    tabs.forEach(tab => {
+        document.getElementById(`${tab}-content`).classList.add('hidden');
+        const tabButton = document.getElementById(`${tab}-tab`);
+        if (tabButton) {
+            tabButton.classList.remove('active', 'bg-green-500', 'text-white');
+            tabButton.classList.add('text-gray-600');
+        }
+    });
+    
+    // Show selected content
+    document.getElementById(`${tabId}-content`).classList.remove('hidden');
+    const activeTab = document.getElementById(`${tabId}-tab`);
+    if (activeTab) {
+        activeTab.classList.add('active', 'bg-green-500', 'text-white');
+        activeTab.classList.remove('text-gray-600');
+    }
+    
+    // Load appropriate patient list
+    if (tabId === 'today') {
+        setTimeout(() => loadPatientList('patientList', patients), 500);
+    } else if (tabId === 'previous') {
+        setTimeout(() => loadPatientList('previousPatientList', previousPatients), 500);
+    } else if (tabId === 'upcoming') {
+        setTimeout(() => loadPatientList('upcomingPatientList', upcomingPatients), 500);
+    }
+}
+
+function loadPatientList(containerId, patientArray) {
+    const patientListDiv = document.getElementById(containerId);
+    patientListDiv.innerHTML = '';
+    
+    patientArray.forEach(patient => {
+        const patientDiv = document.createElement('div');
+        patientDiv.className = 'flex justify-between items-center p-4 border rounded-lg glass shadow-sm hover:shadow-md transition';
+        
+        let statusClass = '';
+        if (patient.status === 'Waiting') {
+            statusClass = 'bg-yellow-100 text-yellow-800';
+        } else if (patient.status === 'In Progress') {
+            statusClass = 'bg-blue-100 text-blue-800';
+        } else if (patient.status === 'Completed') {
+            statusClass = 'bg-green-100 text-green-800';
+        } else if (patient.status === 'No Show') {
+            statusClass = 'bg-red-100 text-red-800';
+        } else if (patient.status === 'Scheduled') {
+            statusClass = 'bg-purple-100 text-purple-800';
+        }
+        
+        const leftDiv = document.createElement('div');
+        leftDiv.className = 'flex items-center space-x-3';
+        
+        const idBadge = document.createElement('span');
+        idBadge.className = 'bg-gray-100 text-gray-800 rounded-full h-8 w-8 flex items-center justify-center text-sm font-bold';
+        idBadge.textContent = patient.id;
+        
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'flex flex-col';
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'font-medium';
+        nameSpan.textContent = patient.name;
+        
+        const statusBadge = document.createElement('span');
+        statusBadge.className = `text-xs px-2 py-1 rounded-full ${statusClass} inline-block`;
+        statusBadge.textContent = patient.status;
+        
+        nameDiv.appendChild(nameSpan);
+        nameDiv.appendChild(statusBadge);
+        
+        leftDiv.appendChild(idBadge);
+        leftDiv.appendChild(nameDiv);
+        
+        const rightDiv = document.createElement('div');
+        rightDiv.className = 'flex items-center space-x-3';
+        
+        const qrDiv = document.createElement('div');
+        qrDiv.id = `qr-${containerId}-${patient.id}`;
+        qrDiv.className = 'bg-white p-1 rounded';
+        
+        const viewButton = document.createElement('button');
+        viewButton.className = 'p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition';
+        viewButton.innerHTML = '<i class="bi bi-eye-fill"></i>';
+        viewButton.title = 'View Patient Details';
+        viewButton.addEventListener('click', () => {
+            alert(`Viewing details for patient: ${patient.name}`);
+        });
+        
+        rightDiv.appendChild(qrDiv);
+        rightDiv.appendChild(viewButton);
+        
+        patientDiv.appendChild(leftDiv);
+        patientDiv.appendChild(rightDiv);
+        patientListDiv.appendChild(patientDiv);
+        
+        new QRCode(qrDiv, {
+            text: `Patient ID: ${patient.id}, Name: ${patient.name}`,
+            width: 64,
+            height: 64
+        });
+    });
+}
+
+function showForgotPassword() {
+    const forgotPasswordHtml = `
+        <div class="flex items-center mb-4">
+            <button onclick="backToPatientLogin()" class="text-blue-600 mr-2">
+                <i class="bi bi-arrow-left"></i>
+            </button>
+            <h2 class="text-xl font-semibold text-center flex-1">Forgot Password</h2>
+        </div>
+        <form onsubmit="handleForgotPassword(event)" class="space-y-4">
+            <div class="relative">
+                <i class="bi bi-person-fill absolute left-3 top-3 text-gray-400"></i>
+                <input type="text" placeholder="Username (min 8 characters)" class="w-full p-2 pl-10 border rounded-lg shadow-sm" required pattern=".{8,}" title="Username must be at least 8 characters">
+            </div>
+            <div class="relative">
+                <i class="bi bi-lock-fill absolute left-3 top-3 text-gray-400"></i>
+                <input type="password" placeholder="New Password (5 digit phone number)" class="w-full p-2 pl-10 border rounded-lg shadow-sm" required pattern="[0-9]{5}" title="Password must be a 5 digit phone number">
+            </div>
+            <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-md transition">
+                Reset Password <i class="bi bi-arrow-repeat ml-1"></i>
+            </button>
+        </form>
+    `;
+    document.getElementById('patientLogin').innerHTML = forgotPasswordHtml;
+}
+
+function showSignup() {
+    const signupHtml = `
+        <div class="flex items-center mb-4">
+            <button onclick="backToPatientLogin()" class="text-blue-600 mr-2">
+                <i class="bi bi-arrow-left"></i>
+            </button>
+            <h2 class="text-xl font-semibold text-center flex-1">Sign Up</h2>
+        </div>
+        <form onsubmit="handleSignup(event)" class="space-y-4">
+            <div class="relative">
+                <i class="bi bi-person-badge absolute left-3 top-3 text-gray-400"></i>
+                <input type="text" placeholder="Full Name" class="w-full p-2 pl-10 border rounded-lg shadow-sm" required>
+            </div>
+            <div class="relative">
+                <i class="bi bi-person-fill absolute left-3 top-3 text-gray-400"></i>
+                <input type="text" placeholder="Username (min 8 characters)" class="w-full p-2 pl-10 border rounded-lg shadow-sm" required pattern=".{8,}" title="Username must be at least 8 characters">
+            </div>
+            <div class="relative">
+                <i class="bi bi-lock-fill absolute left-3 top-3 text-gray-400"></i>
+                <input type="password" placeholder="Password (5 digit phone number)" class="w-full p-2 pl-10 border rounded-lg shadow-sm" required pattern="[0-9]{5}" title="Password must be a 5 digit phone number">
+            </div>
+            <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-md transition">
+                Create Account <i class="bi bi-person-plus-fill ml-1"></i>
+            </button>
+        </form>
+    `;
+    document.getElementById('patientLogin').innerHTML = signupHtml;
+}
+
+function backToPatientLogin() {
+    document.getElementById('patientLogin').innerHTML = `
+        <div class="flex items-center mb-4">
+            <button onclick="backToUserSelection()" class="text-blue-600 mr-2">
+                <i class="bi bi-arrow-left"></i>
+            </button>
+            <h2 class="text-xl font-semibold text-center flex-1">Patient Login</h2>
+        </div>
+        <form onsubmit="handlePatientLogin(event)" class="space-y-4">
+            <div class="relative">
+                <i class="bi bi-person-fill absolute left-3 top-3 text-gray-400"></i>
+                <input type="text" id="patientUsername" placeholder="Username (min 8 characters)" class="w-full p-2 pl-10 border rounded-lg shadow-sm" required pattern=".{8,}" title="Username must be at least 8 characters">
+            </div>
+            <div class="relative">
+                <i class="bi bi-lock-fill absolute left-3 top-3 text-gray-400"></i>
+                <input type="password" id="patientPassword" placeholder="Password (5 digit phone number)" class="w-full p-2 pl-10 border rounded-lg shadow-sm" required pattern="[0-9]{5}" title="Password must be a 5 digit phone number">
+            </div>
+            <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-md transition">
+                Login <i class="bi bi-box-arrow-in-right ml-1"></i>
+            </button>
+        </form>
+        <div class="flex justify-between mt-4">
+            <button onclick="showForgotPassword()" class="text-blue-600 hover:underline flex items-center">
+                <i class="bi bi-question-circle-fill mr-1"></i> Forgot Password?
+            </button>
+            <button onclick="showSignup()" class="text-blue-600 hover:underline flex items-center">
+                <i class="bi bi-person-plus-fill mr-1"></i> Sign Up
+            </button>
+        </div>
+    `;
+}
+
+function handleForgotPassword(e) {
+    e.preventDefault();
+    const username = e.target.querySelector('input[type="text"]').value;
+    const password = e.target.querySelector('input[type="password"]').value;
+    const button = e.target.querySelector('button');
+    const originalText = button.innerHTML;
+    
+    if (!validateUsername(username)) {
+        alert("Username must be at least 8 characters long!");
+        return;
+    }
+    
+    if (!validatePassword(password)) {
+        alert("Password must be a 5-digit phone number!");
+        return;
+    }
+    
+    button.innerHTML = '<div class="loader mr-2"></div> Processing...';
+    
+    setTimeout(() => {
+        alert('Password reset successful!');
+        backToPatientLogin();
+    }, 1500);
+}
+
+function handleSignup(e) {
+    e.preventDefault();
+    const username = e.target.querySelectorAll('input')[1].value;
+    const password = e.target.querySelector('input[type="password"]').value;
+    const button = e.target.querySelector('button');
+    const originalText = button.innerHTML;
+    
+    if (!validateUsername(username)) {
+        alert("Username must be at least 8 characters long!");
+        return;
+    }
+    
+    if (!validatePassword(password)) {
+        alert("Password must be a 5-digit phone number!");
+        return;
+    }
+    
+    button.innerHTML = '<div class="loader mr-2"></div> Creating Account...';
+    
+    setTimeout(() => {
+        alert('Account created successfully!');
+        backToPatientLogin();
+    }, 1500);
+}
+
+function handleChangePassword(e) {
+    e.preventDefault();
+    const oldPassword = e.target.querySelectorAll('input')[0].value;
+    const confirmOldPassword = e.target.querySelectorAll('input')[1].value;
+    const newPassword = e.target.querySelectorAll('input')[2].value;
+    const confirmNewPassword = e.target.querySelectorAll('input')[3].value;
+    const button = e.target.querySelector('button');
+    const originalText = button.innerHTML;
+    
+    if (oldPassword !== confirmOldPassword) {
+        alert("Old passwords do not match!");
+        return;
+    }
+    
+    if (newPassword !== confirmNewPassword) {
+        alert("New passwords do not match!");
+        return;
+    }
+    
+    if (!validatePassword(oldPassword) || !validatePassword(newPassword)) {
+        alert("All passwords must be 5-digit phone numbers!");
+        return;
+    }
+    
+    button.innerHTML = '<div class="loader mr-2"></div> Updating Password...';
+    
+    setTimeout(() => {
+        alert('Password changed successfully!');
+        showPatientTab('medical-info'); // Go back to medical info tab
+        button.innerHTML = originalText;
+    }, 1500);
+}
+
+function logout() {
+    // Show loading animation
+    const mainContent = document.getElementById('mainContent');
+    mainContent.innerHTML = `
+        <div class="flex flex-col items-center justify-center h-40">
+            <div class="loader mb-4"></div>
+            <p>Logging out...</p>
+        </div>
+    `;
+    
+    // Simulate API call for logout
+    setTimeout(() => {
+        location.reload();
+    }, 1500);
+}
+
+// Initialize the admin panel with the today's patients when first loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // If the admin panel is visible on initial load, show today's patients
+    if (!document.getElementById('adminPanel').classList.contains('hidden')) {
+        showDoctorTab('today');
+    }
+});
+</script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
